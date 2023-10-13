@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.header {
+  display: flex;
+  justify-content: center;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  padding: 1.0em;
+  color: #000000;
+  background-color: #FAD5A5;
+  bottom: 0;
+  position: fixed;
+  width: 100%;
+}

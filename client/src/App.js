@@ -1,23 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { GiZipper } from "react-icons/gi";
+
+import Home from "./routes/Home";
 
 function App() {
+  const date = new Date().getFullYear(); // will use the current year to display in the app's footer
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="header">
+        <h1 style={{ alignContent: "center" }}>
+          <GiZipper color="#FF7F50" size={60} />
+          <span style={{ color: "#FF7F50", fontSize: "50px" }}>
+            <b>ZipIt</b>
+          </span>
+        </h1>
+      </div>
+      <div className="footer" style={{ fontSize: "larger" }}>
+        Joanna Salerno & Pavan Asopa&nbsp;&#169;&nbsp;{`${date}`}
+      </div>
     </div>
   );
 }
