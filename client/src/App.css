@@ -52,3 +52,41 @@
   position: fixed;
   width: 100%;
 }
+
+.form-container {
+  width: 400px;
+  margin-top: 50px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin-bottom: 15px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.submit-button {
+    font-size: xx-large;
+    font-weight: bolder;
+    color: #FF7F50;
+    background-color: #ffffff;
+    border: 2px solid #FAD5A5;
+    padding: 5px 10px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.submit-button:hover {
+  background: #FAD5A5;
+}
