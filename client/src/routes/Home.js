@@ -1,5 +1,11 @@
 import "../App.css";
+import Uploader from "../components/Uploader";
 
-function Home() {
-  return <p>Welcome to CompressIt!</p>;
+export default function Home() {
+
+  return (<div>
+           <p>Welcome to zipit!</p>
+           <Uploader/>
+       </div>)
+
 }

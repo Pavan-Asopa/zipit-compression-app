@@ -17,6 +17,7 @@ function App() {
           </span>
         </h1>
       </div>
+      <Home/>
       <div className="footer" style={{ fontSize: "larger" }}>
         Joanna Salerno & Pavan Asopa&nbsp;&#169;&nbsp;{`${date}`}
       </div>
