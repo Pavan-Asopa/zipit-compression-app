@@ -1,9 +1,19 @@
 var express = require('express');
 var router = express.Router();
+require('dotenv').config();
 const AWS = require('aws-sdk');
 
+
+// configure aws sdk
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  sessionToken: process.env.AWS_SESSION_TOKEN,
+  region: 'ap-southeast-2',
+});
+
 // Create unique bucket name
-const bucketName = "";
+const bucketName = "zipit-storage";
 const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 
 (async () => {
@@ -11,8 +21,10 @@ const s3 = new AWS.S3({ apiVersion: "2006-03-01" });
     await s3.createBucket({ Bucket: bucketName }).promise();
     console.log(`Created bucket: ${bucketName}`);
   } catch (err) {
+    if(err.statusCode === 409){
+      console.log(`Bucket ${bucketName} already exists`);
+    }else{
     // We will ignore 409 errors which indicate that the bucket already exists
-    if (err.statusCode !== 409) {
       console.log(`Error creating bucket: ${err}`);
     }
   }
@@ -23,9 +35,9 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-// Endpoint to get pre-signed URLs for file uploads
-router.post('/getPresignedUrls', (req, res) => {
-  const { numFiles } = req.body; // Number of files to upload
+// Endpoint to get pre-signed URLs for file uploads using a GET request
+router.get('/getPresignedUrls', (req, res) => {
+  const { numFiles } = req.query; // Number of files to upload
 
   if (!numFiles) {
     return res.status(400).json({ error: 'Please specify the number of files to upload' });
@@ -36,8 +48,8 @@ router.post('/getPresignedUrls', (req, res) => {
   // Generate pre-signed URLs for each file
   for (let i = 0; i < numFiles; i++) {
     const params = {
-      Bucket: 'YOUR_BUCKET_NAME',
-      Key: `uploads/${Date.now()}-file${i}`, // set the key
+      Bucket: 'zipit-storage',
+      Key: `uploads/${Date.now()}-file${i}`, // Set the key
       Expires: 600, // URL expiration time in seconds
     };
 
@@ -55,5 +67,6 @@ router.post('/getPresignedUrls', (req, res) => {
     });
   }
 });
+
 
 module.exports = router;
