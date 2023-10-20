@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const Uploader = () => {
   const [name, setName] = useState("");
-  const [numFiles, setNumFiles] = useState(0);
+  const [numFiles, setNumFiles] = useState(1);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const formRef = useRef(null);
 
@@ -11,12 +11,10 @@ const Uploader = () => {
 
   const handleNameInputChange = (event) => {
     setName(event.target.value);
-    console.log(`Name is: ${event.target.value}`);
   };
 
   const handleNumFileChange = (event) => {
     setNumFiles(event.target.value);
-    console.log(`Will compress ${event.target.value} files`);
   };
 
   const handleFileSelect = (event) => {
@@ -27,7 +25,7 @@ const Uploader = () => {
   const clearForm = () => {
     // clear states
     setName("");
-    setNumFiles(0);
+    setNumFiles(1);
     setNumFiles([]);
     // reset the form (applies to file input field)
     formRef.current.reset();
@@ -124,7 +122,7 @@ const Uploader = () => {
           />
         </div>
         <button type="submit" className="submit-button">
-          Upload to S3
+          ZipIt!
         </button>
       </form>
     </div>

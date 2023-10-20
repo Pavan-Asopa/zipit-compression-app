@@ -29,8 +29,8 @@ function App() {
   return (
     <div className="App">
       <div className="header">
-        <h1 style={{ alignContent: "center" }}>
-          <GiZipper color="#FF7F50" size={60} />
+        <GiZipper color="#50B3FF" size={60} />
+        <h1>
           <span style={{ color: "#FF7F50", fontSize: "50px" }}>
             <b>ZipIt</b>
           </span>

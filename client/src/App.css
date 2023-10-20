@@ -39,6 +39,7 @@
 
 .header {
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 
@@ -47,7 +48,7 @@
   justify-content: center;
   padding: 1.0em;
   color: #000000;
-  background-color: #FAD5A5;
+  background-color: #D0F2FF;
   bottom: 0;
   position: fixed;
   width: 100%;
@@ -55,12 +56,11 @@
 
 .form-container {
   width: 400px;
-  margin-top: 50px;
   margin: 0 auto;
 }
 
 .form-group {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 label {
@@ -81,12 +81,24 @@ input, textarea {
     font-weight: bolder;
     color: #FF7F50;
     background-color: #ffffff;
-    border: 2px solid #FAD5A5;
+    border: 2px solid #50B3FF;
     padding: 5px 10px;
     text-align: center;
     border-radius: 5px;
 }
 
 .submit-button:hover {
-  background: #FAD5A5;
+  background: #D0F2FF;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #808080;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #50B3FF;
+  font-weight: bolder;
+  text-decoration: overline;
 }
