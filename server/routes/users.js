@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const multer = require('multer');
+const multer = require("multer");
 const storage = multer.memoryStorage();
 const AWS = require("aws-sdk");
 require("dotenv").config();
@@ -17,7 +17,6 @@ AWS.config.update({
 const bucketName = "zipit-storage";
 const s3 = new AWS.S3();
 const upload = multer({ storage: storage });
-
 
 (async () => {
   try {
@@ -40,14 +39,12 @@ router.get("/", function (req, res, next) {
   res.send("respond with a resource");
 });
 
-
-
-router.post('/uploadToS3', upload.array('files', 5), async (req, res) => {
+router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
   const { name, numFiles } = req.body;
   const uploadedFiles = req.files;
 
   if (!name || !numFiles || !uploadedFiles) {
-    return res.status(400).json({ error: 'Invalid request data' });
+    return res.status(400).json({ error: "Invalid request data" });
   }
 
   try {
@@ -55,7 +52,7 @@ router.post('/uploadToS3', upload.array('files', 5), async (req, res) => {
 
     for (const file of uploadedFiles) {
       const params = {
-        Bucket: 'zipit-storage',
+        Bucket: "zipit-storage",
         Key: `uploads/${Date.now()}-${file.originalname}`,
         Body: file.buffer, // Uploaded file data
       };
@@ -65,10 +62,10 @@ router.post('/uploadToS3', upload.array('files', 5), async (req, res) => {
 
     await Promise.all(s3UploadPromises);
 
-    res.status(200).json({ message: 'Files uploaded to S3 successfully' });
+    res.status(200).json({ message: "Files uploaded to S3 successfully" });
   } catch (error) {
-    console.error('Error uploading files to S3:', error);
-    res.status(500).json({ error: 'Failed to upload files to S3' });
+    console.error("Error uploading files to S3:", error);
+    res.status(500).json({ error: "Failed to upload files to S3" });
   }
 });
 

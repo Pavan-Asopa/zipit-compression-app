@@ -1,36 +1,37 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Uploader = () => {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [numFiles, setNumFiles] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const formRef = useRef(null);
 
-  let navigate= useNavigate();
+  let navigate = useNavigate();
 
-  const handleInputChange = (event) => {
+  const handleNameInputChange = (event) => {
     setName(event.target.value);
     console.log(`Name is: ${event.target.value}`);
   };
 
-  const handleFileChange = (event) => {
+  const handleNumFileChange = (event) => {
     setNumFiles(event.target.value);
     console.log(`Will compress ${event.target.value} files`);
   };
 
-  const clearForm = () => {
-    setName('');
-    setNumFiles(0);
-    setNumFiles([]);
-      // Reset the form
-  formRef.current.reset();
-    console.log("Cleared the form");
-  }
-
   const handleFileSelect = (event) => {
     const files = event.target.files;
     setSelectedFiles(files);
+  };
+
+  const clearForm = () => {
+    // clear states
+    setName("");
+    setNumFiles(0);
+    setNumFiles([]);
+    // reset the form (applies to file input field)
+    formRef.current.reset();
+    console.log("Cleared the upload form");
   };
 
   const handleSubmit = async (event) => {
@@ -39,29 +40,33 @@ const Uploader = () => {
     try {
       // Create a FormData object to send files to the backend
       const formData = new FormData();
-      formData.append('name', name);
-      formData.append('numFiles', numFiles);
+      formData.append("name", name);
+      formData.append("numFiles", numFiles);
 
       // Append selected files to the FormData object
       for (const file of selectedFiles) {
-        formData.append('files', file);
+        formData.append("files", file);
       }
 
       // Make a POST request to your backend
-      const response = await fetch('http://localhost:3001/users/uploadToS3', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3001/users/uploadToS3", {
+        method: "POST",
         body: formData,
       });
 
       if (response.ok) {
-        console.log('Files uploaded to S3 successfully.');
+        console.log("Files uploaded to S3 successfully.");
         clearForm();
-        navigate('/zippedIt')
+        navigate("/zippedIt");
       } else {
-        console.error('Error uploading files to S3:', response.status, response.statusText);
+        console.error(
+          "Error uploading files to S3:",
+          response.status,
+          response.statusText
+        );
       }
     } catch (error) {
-      console.error('Error uploading files to S3:', error);
+      console.error("Error uploading files to S3:", error);
     }
   };
 
@@ -78,7 +83,7 @@ const Uploader = () => {
             name="firstName"
             placeholder="Your Name"
             value={name}
-            onChange={handleInputChange}
+            onChange={handleNameInputChange}
             style={{ fontSize: "larger" }}
             required={true}
           />
@@ -91,7 +96,7 @@ const Uploader = () => {
             id="selection"
             name="selection"
             value={numFiles}
-            onChange={handleFileChange}
+            onChange={handleNumFileChange}
             style={{ fontSize: "larger" }}
             required={true}
           >
@@ -127,5 +132,3 @@ const Uploader = () => {
 };
 
 export default Uploader;
-
-

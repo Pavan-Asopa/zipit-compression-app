@@ -2,26 +2,26 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { GiZipper } from "react-icons/gi";
 
+import Root from "./routes/Root";
 import Home from "./routes/Home";
 import ZippedIt from "./routes/ZippedIt";
-import Root from "./routes/Root";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Root />,
     children: [
       {
-        path: '/',
-        element: <Home/>
+        path: "/",
+        element: <Home />,
       },
       {
-        path: '/zippedIt',
-        element: <ZippedIt/>
-      }
-    ]
-  }
-])
+        path: "/zippedIt",
+        element: <ZippedIt />,
+      },
+    ],
+  },
+]);
 
 function App() {
   const date = new Date().getFullYear(); // will use the current year to display in the app's footer
@@ -37,7 +37,7 @@ function App() {
         </h1>
       </div>
       <hr />
-      <RouterProvider router={router}/>
+      <RouterProvider router={router} />
       <div className="footer" style={{ fontSize: "larger" }}>
         Joanna Salerno & Pavan Asopa&nbsp;&#169;&nbsp;{`${date}`}
       </div>
