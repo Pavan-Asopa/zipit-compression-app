@@ -48,7 +48,7 @@
   justify-content: center;
   padding: 1.0em;
   color: #000000;
-  background-color: #D0F2FF;
+  background-color: #B9E0FF;
   bottom: 0;
   position: fixed;
   width: 100%;
@@ -79,7 +79,7 @@ input, textarea {
 .submit-button {
     font-size: xx-large;
     font-weight: bolder;
-    color: #FF7F50;
+    color: #FF9C50;
     background-color: #ffffff;
     border: 2px solid #50B3FF;
     padding: 5px 10px;
@@ -88,7 +88,7 @@ input, textarea {
 }
 
 .submit-button:hover {
-  background: #D0F2FF;
+  background: #EDF7FF;
 }
 
 .nav-link {

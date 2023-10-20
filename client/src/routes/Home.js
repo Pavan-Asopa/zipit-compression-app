@@ -1,5 +1,5 @@
 import "../App.css";
-import Uploader from "../components/Uploader";
+import UploadForm from "../components/UploadForm";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
         Once the job is complete, your compressed files will be available to
         download.
       </p>
-      <Uploader />
+      <UploadForm />
     </div>
   );
 }

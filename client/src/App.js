@@ -2,10 +2,12 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { GiZipper } from "react-icons/gi";
 
+// import routes for browser router
 import Root from "./routes/Root";
 import Home from "./routes/Home";
 import ZippedIt from "./routes/ZippedIt";
 
+// create browser router
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,7 +33,7 @@ function App() {
       <div className="header">
         <GiZipper color="#50B3FF" size={60} />
         <h1>
-          <span style={{ color: "#FF7F50", fontSize: "50px" }}>
+          <span style={{ color: "#FF9C50", fontSize: "50px" }}>
             <b>ZipIt</b>
           </span>
         </h1>

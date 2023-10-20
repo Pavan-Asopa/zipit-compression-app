@@ -1,9 +1,9 @@
 var express = require("express");
 var router = express.Router();
-const multer = require("multer");
-const storage = multer.memoryStorage();
 const AWS = require("aws-sdk");
 require("dotenv").config();
+const multer = require("multer");
+const storage = multer.memoryStorage();
 
 // configure aws sdk
 AWS.config.update({
@@ -13,9 +13,11 @@ AWS.config.update({
   region: "ap-southeast-2",
 });
 
-// create a unique bucket name
+// create a unique bucket
 const bucketName = "zipit-storage";
 const s3 = new AWS.S3();
+
+// create multer upload object
 const upload = multer({ storage: storage });
 
 (async () => {
@@ -24,7 +26,7 @@ const upload = multer({ storage: storage });
     await s3.createBucket({ Bucket: bucketName }).promise();
     console.log(`Created bucket: ${bucketName}`);
   } catch (err) {
-    // check whether bukcet already exists
+    // check whether bucket already exists
     if (err.statusCode === 409) {
       console.log(`Bucket ${bucketName} already exists`);
     } else {
@@ -36,7 +38,7 @@ const upload = multer({ storage: storage });
 
 /* GET users listing. */
 router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
+  res.send("Respond with a resource");
 });
 
 router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
@@ -49,20 +51,16 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
 
   try {
     const s3UploadPromises = [];
-
     for (const file of uploadedFiles) {
       const params = {
         Bucket: "zipit-storage",
         Key: `uploads/${Date.now()}-${file.originalname}`,
-        Body: file.buffer, // Uploaded file data
+        Body: file.buffer, // uploaded file data
       };
-
       s3UploadPromises.push(s3.upload(params).promise());
     }
-
     await Promise.all(s3UploadPromises);
-
-    res.status(200).json({ message: "Files uploaded to S3 successfully" });
+    res.status(200).json({ message: "Successfully uploaded files to S3" });
   } catch (error) {
     console.error("Error uploading files to S3:", error);
     res.status(500).json({ error: "Failed to upload files to S3" });
