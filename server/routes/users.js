@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const AWS = require("aws-sdk");
 require("dotenv").config();
+const compressing = require('compressing');
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const sqs = new AWS.SQS({ region: 'ap-southeast-2' });
@@ -13,6 +14,49 @@ AWS.config.update({
   sessionToken: process.env.AWS_SESSION_TOKEN,
   region: "ap-southeast-2",
 });
+
+
+
+// const queueName = 'ZipIt.fifo'; 
+
+// const params = {
+//   QueueNamePrefix: queueName,
+// };
+
+// const createQueueIfNotExists = async (queueName, params) => {
+//   try {
+//     const data = await sqs.listQueues(params).promise();
+
+//     if (data.QueueUrls && data.QueueUrls.length > 0) {
+//       console.log(`SQS FIFO queue "${queueName}" already exists.`);
+//       return data.QueueUrls[0]; // Return the existing queue URL
+//     } else {
+//       const createParams = {
+//         QueueName: queueName,
+//         Attributes: {
+//           FifoQueue: 'true',
+//         },
+//       };
+
+//       const createData = await sqs.createQueue(createParams).promise();
+//       console.log('SQS FIFO queue created:', createData.QueueUrl);
+//       return createData.QueueUrl; // Return the newly created queue URL
+//     }
+//   } catch (error) {
+//     console.error('Error:', error);
+//     return null; // Return null if an error occurs
+//   }
+// };
+
+// (async () => {
+//   const queueUrl = await createQueueIfNotExists(queueName, params);
+
+//   if (queueUrl) {
+//     // You can now use the queueUrl constant in your application
+//     console.log('Queue URL:', queueUrl);
+//   }
+// })();
+
 
 const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo';
 
@@ -56,7 +100,7 @@ router.get("/", function (req, res, next) {
 });
 
 router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
-  // const name = req.name;
+  const name = req.body.name;
   // const numFiles = req.numFiles;
   const uploadedFiles = req.files;
 
@@ -66,10 +110,11 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
 
   try {
     const s3UploadPromises = [];
+    const uploadTime = Date.now();
     for (const file of uploadedFiles) {
       const params = {
         Bucket: "zipit-storage",
-        Key: `uploads/${Date.now()}-${file.originalname}`,
+        Key: `${name}-${uploadTime}-${file.originalname}`,
         Body: file.buffer, // uploaded file data
       };
       s3UploadPromises.push(s3.upload(params).promise());
@@ -78,9 +123,10 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
     await Promise.all(s3UploadPromises);
 
    for (const file of uploadedFiles){
-    const fileName = file.originalname;
-    await sendMessageToQueue(JSON.stringify({ fileName}));
-    console.log(`File ${fileName} added to queue`);
+    //const fileName = file.originalname;
+    const message = `${name}-${uploadTime}-${file.originalname}`;
+    await sendMessageToQueue(JSON.stringify({ message}));
+    console.log(`File ${file.originalname} added to queue`);
    }
 
    res.status(200).json({ message: `Files uploaded to s3 and queued for processing` });
@@ -89,5 +135,61 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
     res.status(500).json({ error: "Failed to upload files to S3" });
   }
 });
+
+//File compression
+
+async function processQueueMessage(message) {
+  try {
+    const messageBody = JSON.parse(message.Body);
+    const fileName = messageBody.message;
+
+    // Download the uncompressed file from S3
+    const params = {
+      Bucket: bucketName,
+      Key: fileName,
+    };
+    const uncompressedFile = await s3.getObject(params).promise();
+
+    // Perform file compression using compressing
+    const compressedFileName = fileName.replace(/\.[^.]+$/, '.zip');
+
+    await compressing.zip.compressFile(uncompressedFile.Body, `zipped/${compressedFileName}`);
+
+    // Upload the compressed file back to S3
+    const uploadParams = {
+      Bucket: bucketName,
+      Key: `zipped/${compressedFileName}`,
+      Body: uncompressedFile.Body, // The compressed file is already in-memory
+    };
+
+    await s3.upload(uploadParams).promise();
+    console.log(`File ${fileName} compressed and saved as ${compressedFileName} in S3.`);
+
+    // Delete the processed message from the queue
+    await sqs.deleteMessage({
+      QueueUrl: queueUrl,
+      ReceiptHandle: message.ReceiptHandle,
+    }).promise();
+  } catch (error) {
+    console.error('Error processing message:', error);
+  }
+}
+
+async function pollQueue() {
+  while (true) {
+    const messages = await sqs.receiveMessage({
+      QueueUrl: queueUrl,
+      MaxNumberOfMessages: 1,
+      WaitTimeSeconds: 20, // Adjust the wait time as needed
+    }).promise();
+
+    if (messages.Messages && messages.Messages.length > 0) {
+      const message = messages.Messages[0];
+      await processQueueMessage(message);
+    }
+  }
+}
+
+pollQueue();
 
 module.exports = router;
