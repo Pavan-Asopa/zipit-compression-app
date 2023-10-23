@@ -2,7 +2,8 @@ var express = require("express");
 var router = express.Router();
 const AWS = require("aws-sdk");
 require("dotenv").config();
-const compressing = require('compressing');
+const AdmZip = require('adm-zip');
+const fs = require('fs');
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const sqs = new AWS.SQS({ region: 'ap-southeast-2' });
@@ -103,6 +104,7 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
   const name = req.body.name;
   // const numFiles = req.numFiles;
   const uploadedFiles = req.files;
+  const time = req.body.time;
 
   if (!uploadedFiles) {
     return res.status(400).json({ error: "Invalid request data" });
@@ -110,11 +112,11 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
 
   try {
     const s3UploadPromises = [];
-    const uploadTime = Date.now();
+    // const uploadTime = Date.now();
     for (const file of uploadedFiles) {
       const params = {
         Bucket: "zipit-storage",
-        Key: `${name}-${uploadTime}-${file.originalname}`,
+        Key: `${name}-${time}-${file.originalname}`,
         Body: file.buffer, // uploaded file data
       };
       s3UploadPromises.push(s3.upload(params).promise());
@@ -124,7 +126,7 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
 
    for (const file of uploadedFiles){
     //const fileName = file.originalname;
-    const message = `${name}-${uploadTime}-${file.originalname}`;
+    const message = `${name}-${time}-${file.originalname}`;
     await sendMessageToQueue(JSON.stringify({ message}));
     console.log(`File ${file.originalname} added to queue`);
    }
@@ -138,6 +140,7 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
 
 //File compression
 
+
 async function processQueueMessage(message) {
   try {
     const messageBody = JSON.parse(message.Body);
@@ -149,17 +152,18 @@ async function processQueueMessage(message) {
       Key: fileName,
     };
     const uncompressedFile = await s3.getObject(params).promise();
+   
+    // Perform file compression using AdmZip
+   const compressedFileData = compressFile(fileName, uncompressedFile.Body);
 
-    // Perform file compression using compressing
+    // Upload the compressed file back to S3
     const compressedFileName = fileName.replace(/\.[^.]+$/, '.zip');
-
-    await compressing.zip.compressFile(uncompressedFile.Body, `zipped/${compressedFileName}`);
 
     // Upload the compressed file back to S3
     const uploadParams = {
       Bucket: bucketName,
       Key: `zipped/${compressedFileName}`,
-      Body: uncompressedFile.Body, // The compressed file is already in-memory
+      Body: compressedFileData, 
     };
 
     await s3.upload(uploadParams).promise();
@@ -174,6 +178,14 @@ async function processQueueMessage(message) {
     console.error('Error processing message:', error);
   }
 }
+
+function compressFile(fileName, fileData) {
+  const zip = new AdmZip();
+  zip.addFile(fileName, fileData);
+  return zip.toBuffer();
+}
+
+
 
 async function pollQueue() {
   while (true) {
@@ -191,5 +203,13 @@ async function pollQueue() {
 }
 
 pollQueue();
+
+//return compressed file to front end
+
+router.post("/download", async (req, res) => {
+  const name = req.body.name;
+
+
+});
 
 module.exports = router;

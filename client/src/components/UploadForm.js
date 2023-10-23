@@ -6,6 +6,7 @@ function UploadForm() {
   const [name, setName] = useState("");
   const [numFiles, setNumFiles] = useState(1);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [time, setTime] = useState(null);
 
   // set reference for form
   const formRef = useRef(null);
@@ -27,6 +28,7 @@ function UploadForm() {
   const handleFileSelect = (event) => {
     const files = event.target.files;
     setSelectedFiles(files);
+    setTime(Date.now());
   };
 
   // function to clear upload form upon submission
@@ -46,10 +48,12 @@ function UploadForm() {
     event.preventDefault();
 
     try {
+      console.log(time);
       // create a formData object to send files to the backend
       const formData = new FormData();
       formData.append("name", name);
       formData.append("numFiles", numFiles);
+      formData.append("time", time);
 
       // append selected files to the formData object
       for (const file of selectedFiles) {
@@ -66,7 +70,7 @@ function UploadForm() {
       if (response.ok) {
         console.log("Files uploaded to S3 successfully.");
         clearForm(); // clear form upon submission
-        navigate("/zippedIt"); // navigate to page where user will receive compressed files for download
+        navigate(`/zippedIt/${name}/${time}`); // navigate to page where user will receive compressed files for download
       } else {
         // check for errors
         console.error(

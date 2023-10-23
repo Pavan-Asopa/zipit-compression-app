@@ -18,7 +18,7 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/zippedIt",
+        path: "/zippedIt/:name/:time",
         element: <ZippedIt />,
       },
     ],

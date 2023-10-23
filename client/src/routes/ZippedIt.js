@@ -1,4 +1,9 @@
+import { useParams } from "react-router-dom";
+
 export default function ZippedIt() {
+  const {name, time} = useParams();
+  console.log(name);
+  console.log(time);
   return (
     <div>
       <p style={{ fontSize: "larger" }}>
