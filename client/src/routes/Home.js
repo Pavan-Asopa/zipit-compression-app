@@ -1,7 +1,8 @@
 import "../App.css";
 import UploadForm from "../components/UploadForm";
 
-export default function Home() {
+// function to display app's main home page, including an upload form component
+function Home() {
   return (
     <div>
       <p
@@ -16,3 +17,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;

@@ -25,6 +25,7 @@ const router = createBrowserRouter([
   },
 ]);
 
+// main function to display app
 function App() {
   const date = new Date().getFullYear(); // will use the current year to display in the app's footer
 

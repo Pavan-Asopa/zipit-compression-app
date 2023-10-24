@@ -1,9 +1,8 @@
 import { useParams } from "react-router-dom";
 
-export default function ZippedIt() {
-  const {name, time} = useParams();
-  console.log(name);
-  console.log(time);
+// function to display page where user will have compressed file(s) returned to them to download
+function ZippedIt() {
+  const { name, uploadTime } = useParams();
   return (
     <div>
       <p style={{ fontSize: "larger" }}>
@@ -17,3 +16,5 @@ export default function ZippedIt() {
     </div>
   );
 }
+
+export default ZippedIt;

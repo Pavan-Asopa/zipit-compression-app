@@ -8,7 +8,8 @@ const activeStyle = {
   color: "#50B3FF",
 };
 
-export default function Root() {
+// function to display main navigation bar in app
+function Root() {
   return (
     <div>
       <ul style={{ listStyleType: "none", fontSize: "x-large" }}>
@@ -26,3 +27,5 @@ export default function Root() {
     </div>
   );
 }
+
+export default Root;

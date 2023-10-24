@@ -1,12 +1,17 @@
 var express = require("express");
 var router = express.Router();
+
+// aws variables / setup
 const AWS = require("aws-sdk");
 require("dotenv").config();
-const AdmZip = require('adm-zip');
-const fs = require('fs');
+
+// file transfer
 const multer = require("multer");
 const storage = multer.memoryStorage();
-const sqs = new AWS.SQS({ region: 'ap-southeast-2' });
+
+// file compression
+const AdmZip = require("adm-zip");
+const fs = require("fs");
 
 // configure aws sdk
 AWS.config.update({
@@ -16,9 +21,9 @@ AWS.config.update({
   region: "ap-southeast-2",
 });
 
+const sqs = new AWS.SQS({ region: "ap-southeast-2" });
 
-
-// const queueName = 'ZipIt.fifo'; 
+// const queueName = 'ZipIt.fifo';
 
 // const params = {
 //   QueueNamePrefix: queueName,
@@ -58,15 +63,15 @@ AWS.config.update({
 //   }
 // })();
 
+const queueUrl =
+  "https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo";
 
-const queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo';
-
-// Function to send a message to the SQS FIFO queue
+// function to send a message to the SQS FIFO queue
 const sendMessageToQueue = async (messageBody) => {
   const params = {
     MessageBody: messageBody,
     QueueUrl: queueUrl,
-    MessageGroupId: 'file-compression', // Group messages if needed
+    MessageGroupId: "file-compression",
   };
 
   return sqs.sendMessage(params).promise();
@@ -104,7 +109,7 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
   const name = req.body.name;
   // const numFiles = req.numFiles;
   const uploadedFiles = req.files;
-  const time = req.body.time;
+  const time = req.body.uploadTime;
 
   if (!uploadedFiles) {
     return res.status(400).json({ error: "Invalid request data" });
@@ -124,14 +129,16 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
     }
     await Promise.all(s3UploadPromises);
 
-   for (const file of uploadedFiles){
-    //const fileName = file.originalname;
-    const message = `${name}-${time}-${file.originalname}`;
-    await sendMessageToQueue(JSON.stringify({ message}));
-    console.log(`File ${file.originalname} added to queue`);
-   }
+    for (const file of uploadedFiles) {
+      //const fileName = file.originalname;
+      const message = `${name}-${time}-${file.originalname}`;
+      await sendMessageToQueue(JSON.stringify({ message }));
+      console.log(`File ${file.originalname} added to queue`);
+    }
 
-   res.status(200).json({ message: `Files uploaded to s3 and queued for processing` });
+    res
+      .status(200)
+      .json({ message: `Files uploaded to s3 and queued for processing` });
   } catch (error) {
     console.error("Error uploading files to S3 or queuing:", error);
     res.status(500).json({ error: "Failed to upload files to S3" });
@@ -139,7 +146,6 @@ router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
 });
 
 //File compression
-
 
 async function processQueueMessage(message) {
   try {
@@ -152,30 +158,34 @@ async function processQueueMessage(message) {
       Key: fileName,
     };
     const uncompressedFile = await s3.getObject(params).promise();
-   
+
     // Perform file compression using AdmZip
-   const compressedFileData = compressFile(fileName, uncompressedFile.Body);
+    const compressedFileData = compressFile(fileName, uncompressedFile.Body);
 
     // Upload the compressed file back to S3
-    const compressedFileName = fileName.replace(/\.[^.]+$/, '.zip');
+    const compressedFileName = fileName.replace(/\.[^.]+$/, ".zip");
 
     // Upload the compressed file back to S3
     const uploadParams = {
       Bucket: bucketName,
       Key: `zipped/${compressedFileName}`,
-      Body: compressedFileData, 
+      Body: compressedFileData,
     };
 
     await s3.upload(uploadParams).promise();
-    console.log(`File ${fileName} compressed and saved as ${compressedFileName} in S3.`);
+    console.log(
+      `File ${fileName} compressed and saved as ${compressedFileName} in S3.`
+    );
 
     // Delete the processed message from the queue
-    await sqs.deleteMessage({
-      QueueUrl: queueUrl,
-      ReceiptHandle: message.ReceiptHandle,
-    }).promise();
+    await sqs
+      .deleteMessage({
+        QueueUrl: queueUrl,
+        ReceiptHandle: message.ReceiptHandle,
+      })
+      .promise();
   } catch (error) {
-    console.error('Error processing message:', error);
+    console.error("Error processing message:", error);
   }
 }
 
@@ -185,15 +195,15 @@ function compressFile(fileName, fileData) {
   return zip.toBuffer();
 }
 
-
-
 async function pollQueue() {
   while (true) {
-    const messages = await sqs.receiveMessage({
-      QueueUrl: queueUrl,
-      MaxNumberOfMessages: 1,
-      WaitTimeSeconds: 20, // Adjust the wait time as needed
-    }).promise();
+    const messages = await sqs
+      .receiveMessage({
+        QueueUrl: queueUrl,
+        MaxNumberOfMessages: 1,
+        WaitTimeSeconds: 20, // Adjust the wait time as needed
+      })
+      .promise();
 
     if (messages.Messages && messages.Messages.length > 0) {
       const message = messages.Messages[0];
@@ -208,8 +218,6 @@ pollQueue();
 
 router.post("/download", async (req, res) => {
   const name = req.body.name;
-
-
 });
 
 module.exports = router;

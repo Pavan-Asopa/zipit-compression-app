@@ -1,12 +1,13 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
+// function to create an upload form for the user to complete to compress their file(s)
 function UploadForm() {
   // set states for name, number of files, and selected files
   const [name, setName] = useState("");
   const [numFiles, setNumFiles] = useState(1);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [time, setTime] = useState(null);
+  const [uploadTime, setUploadTime] = useState(null);
 
   // set reference for form
   const formRef = useRef(null);
@@ -28,7 +29,7 @@ function UploadForm() {
   const handleFileSelect = (event) => {
     const files = event.target.files;
     setSelectedFiles(files);
-    setTime(Date.now());
+    setUploadTime(Date.now()); // set upload time based on time files are selected
   };
 
   // function to clear upload form upon submission
@@ -48,19 +49,20 @@ function UploadForm() {
     event.preventDefault();
 
     try {
-      console.log(time);
       // create a formData object to send files to the backend
       const formData = new FormData();
+
+      // append user's name, number of files, and upload time to the form data to easily identify it
       formData.append("name", name);
       formData.append("numFiles", numFiles);
-      formData.append("time", time);
+      formData.append("uploadTime", uploadTime);
 
       // append selected files to the formData object
       for (const file of selectedFiles) {
         formData.append("files", file);
       }
 
-      // make a post request to the backend
+      // make a post request to the backend to upload files to S3 bucket
       const response = await fetch("http://localhost:3001/users/uploadToS3", {
         method: "POST",
         body: formData,
@@ -70,7 +72,9 @@ function UploadForm() {
       if (response.ok) {
         console.log("Files uploaded to S3 successfully.");
         clearForm(); // clear form upon submission
-        navigate(`/zippedIt/${name}/${time}`); // navigate to page where user will receive compressed files for download
+
+        // navigate to page where user will receive compressed files for download, passing necessary paramaters
+        navigate(`/zippedIt/${name}/${uploadTime}`);
       } else {
         // check for errors
         console.error(
