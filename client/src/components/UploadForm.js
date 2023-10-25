@@ -90,6 +90,7 @@ function UploadForm() {
   };
 
   return (
+    <div className="form">
     <div className="form-container">
       <form id="fileUploadForm" ref={formRef} onSubmit={handleSubmit}>
         <div className="form-group">
@@ -106,25 +107,6 @@ function UploadForm() {
             style={{ fontSize: "larger" }}
             required={true}
           />
-        </div>
-        <div className="form-group">
-          <label htmlFor="selection" style={{ fontSize: "larger" }}>
-            Select the number of files for compression
-          </label>
-          <select
-            id="selection"
-            name="selection"
-            value={numFiles}
-            onChange={handleNumFileChange}
-            style={{ fontSize: "larger" }}
-            required={true}
-          >
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
         </div>
         <div className="form-group">
           <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
@@ -146,6 +128,7 @@ function UploadForm() {
           ZipIt!
         </button>
       </form>
+    </div>
     </div>
   );
 }

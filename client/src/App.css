@@ -59,6 +59,10 @@
   margin: 0 auto;
 }
 
+.form {
+  align-items: center;
+}
+
 .form-group {
   margin-bottom: 35px;
 }
@@ -95,6 +99,7 @@ input, textarea {
   text-decoration: none;
   color: #808080;
   transition: color 0.3s ease;
+  align-items: center;
 }
 
 .nav-link:hover {

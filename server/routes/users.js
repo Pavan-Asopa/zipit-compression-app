@@ -185,7 +185,17 @@ async function processQueueMessage(message) {
       })
       .promise();
   } catch (error) {
+    if (error.statusCode === 404) {
+      console.log("Specified file to compress in not present in the s3 bucket. Deleting message from queue");
+      await sqs
+      .deleteMessage({
+        QueueUrl: queueUrl,
+        ReceiptHandle: message.ReceiptHandle,
+      })
+      .promise();
+    } else {
     console.error("Error processing message:", error);
+    }
   }
 }
 
@@ -208,6 +218,9 @@ async function pollQueue() {
     if (messages.Messages && messages.Messages.length > 0) {
       const message = messages.Messages[0];
       await processQueueMessage(message);
+    }
+    else {
+      console.log("No messages in the queue, continuing to poll for messages");
     }
   }
 }
