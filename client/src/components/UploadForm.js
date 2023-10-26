@@ -28,8 +28,14 @@ function UploadForm() {
   // function to set selected files to those selected by the user
   const handleFileSelect = (event) => {
     const files = event.target.files;
-    setSelectedFiles(files);
-    setUploadTime(Date.now()); // set upload time based on time files are selected
+    const selectedFilesArray = Array.from(files);
+    if (selectedFilesArray.length > 5) {
+      alert("You can only select a maximum of 5 files");
+      event.target.value = null;
+    }else {
+      setSelectedFiles(files);
+      setUploadTime(Date.now()); // set upload time based on time files are selected
+    }
   };
 
   // function to clear upload form upon submission
@@ -110,7 +116,7 @@ function UploadForm() {
         </div>
         <div className="form-group">
           <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
-            Select files for upload
+            Select up to 5 files for upload
           </label>
           <input
             type="file"
