@@ -30,11 +30,13 @@ function UploadForm() {
     const files = event.target.files;
     const selectedFilesArray = Array.from(files);
     if (selectedFilesArray.length > 5) {
-      alert("You can only select a maximum of 5 files");
+      // check length of selected file array
+      alert("You can only select a maximum of 5 files"); // display alert if user selects > 5 files
       event.target.value = null;
-    }else {
+    } else {
+      // set selected files and upload time
       setSelectedFiles(files);
-      setUploadTime(Date.now()); // set upload time based on time files are selected
+      setUploadTime(Date.now()); // upload time based on time files are selected
     }
   };
 
@@ -97,44 +99,44 @@ function UploadForm() {
 
   return (
     <div className="form">
-    <div className="form-container">
-      <form id="fileUploadForm" ref={formRef} onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="firstName" style={{ fontSize: "larger" }}>
-            Name to be associated with job
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            name="firstName"
-            placeholder="Your Name"
-            value={name}
-            onChange={handleNameInputChange}
-            style={{ fontSize: "larger" }}
-            required={true}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
-            Select up to 5 files for upload
-          </label>
-          <input
-            type="file"
-            name="filesForUpload"
-            multiple
-            onChange={handleFileSelect}
-            style={{
-              fontSize: "larger",
-              alignContent: "center",
-            }}
-            required={true}
-          />
-        </div>
-        <button type="submit" className="submit-button">
-          ZipIt!
-        </button>
-      </form>
-    </div>
+      <div className="form-container">
+        <form id="fileUploadForm" ref={formRef} onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="firstName" style={{ fontSize: "larger" }}>
+              Name to be associated with job
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              placeholder="Your Name"
+              value={name}
+              onChange={handleNameInputChange}
+              style={{ fontSize: "larger" }}
+              required={true}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
+              Select up to 5 files for upload
+            </label>
+            <input
+              type="file"
+              name="filesForUpload"
+              multiple
+              onChange={handleFileSelect}
+              style={{
+                fontSize: "larger",
+                alignContent: "center",
+              }}
+              required={true}
+            />
+          </div>
+          <button type="submit" className="submit-button">
+            ZipIt!
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
