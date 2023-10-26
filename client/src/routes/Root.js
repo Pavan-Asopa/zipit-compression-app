@@ -12,7 +12,7 @@ const activeStyle = {
 function Root() {
   return (
     <div>
-      <ul style={{ listStyleType: "none", fontSize: "x-large" }}>
+      <ul style={{ listStyleType: "none", fontSize: "x-large", margin: "0", padding:"0"}}>
         <li>
           <NavLink
             className="nav-link"
