@@ -23,45 +23,38 @@ AWS.config.update({
 
 const sqs = new AWS.SQS({ region: "ap-southeast-2" });
 
-// const queueName = 'ZipIt.fifo';
+const queueName = 'ZipIt.fifo';
 
-// const params = {
-//   QueueNamePrefix: queueName,
-// };
+async function checkAndCreateQueue() {
+  try {
+    // Check if the queue exists
+    const { QueueUrl } = await sqs.getQueueUrl({ QueueName: queueName }).promise();
 
-// const createQueueIfNotExists = async (queueName, params) => {
-//   try {
-//     const data = await sqs.listQueues(params).promise();
+    console.log(`Queue '${queueName}' already exists with URL: ${QueueUrl}`);
+  } catch (error) {
+    if (error.code === 'AWS.SimpleQueueService.NonExistentQueue') {
+      // Queue doesn't exist, create it
+      const params = {
+        QueueName: queueName,
+        Attributes: {
+          FifoQueue: 'true',
+          ContentBasedDeduplication: 'true',
+        },
+      };
 
-//     if (data.QueueUrls && data.QueueUrls.length > 0) {
-//       console.log(`SQS FIFO queue "${queueName}" already exists.`);
-//       return data.QueueUrls[0]; // Return the existing queue URL
-//     } else {
-//       const createParams = {
-//         QueueName: queueName,
-//         Attributes: {
-//           FifoQueue: 'true',
-//         },
-//       };
+      const { QueueUrl } = await sqs.createQueue(params).promise();
 
-//       const createData = await sqs.createQueue(createParams).promise();
-//       console.log('SQS FIFO queue created:', createData.QueueUrl);
-//       return createData.QueueUrl; // Return the newly created queue URL
-//     }
-//   } catch (error) {
-//     console.error('Error:', error);
-//     return null; // Return null if an error occurs
-//   }
-// };
+      console.log(`Queue '${queueName}' created with URL: ${QueueUrl}`);
+    } else {
+      throw error;
+    }
+  }
+}
 
-// (async () => {
-//   const queueUrl = await createQueueIfNotExists(queueName, params);
+checkAndCreateQueue()
+  // .then(() => console.log('Queue check and creation complete'))
+  .catch((error) => console.error('Error:', error));
 
-//   if (queueUrl) {
-//     // You can now use the queueUrl constant in your application
-//     console.log('Queue URL:', queueUrl);
-//   }
-// })();
 
 const queueUrl =
   "https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo";
