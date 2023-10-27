@@ -123,13 +123,12 @@ function UploadForm() {
               onChange={handleFileSelect}
               style={{
                 fontSize: "larger",
-                alignContent: "center",
               }}
               required={true}
             />
           </div>
           <button type="submit" className="submit-button">
-            ZipIt!
+            ZipIt
           </button>
         </form>
       </div>

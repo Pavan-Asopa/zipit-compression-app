@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { LuDownload } from "react-icons/lu";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
@@ -38,34 +39,47 @@ function ZippedIt() {
   }, [name, uploadTime, numFiles]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <p style={{ fontSize: "larger", marginTop: "40px" }}>
+        Compressing your files...
+      </p>
+    );
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return (
+      <p style={{ fontSize: "larger", marginTop: "40px" }}>
+        Error compressing files: {error}
+      </p>
+    );
   }
 
   return (
     <div>
-      <p style={{ fontSize: "larger" }}>
-        Your compressed files are available to download below.
+      <p
+        style={{ fontSize: "larger", marginTop: "40px", marginBottom: "40px" }}
+      >
+        Your compressed files are available to download below:
       </p>
       <div>
         {downloadLinks.map((link, index) => (
           <div key={index}>
             <Link to={link.link}>
-              <button>
-                Download file: {link.name.split("-").slice(2).join("-")}
+              <button className="download-button">
+                <div className="button-contents">
+                  <LuDownload
+                    color="#000000"
+                    size={25}
+                    style={{ paddingRight: "5px" }}
+                  />
+                  Download file: {link.name.split("-").slice(2).join("-")}
+                </div>
               </button>
             </Link>
-            {/* <a href={link.link} target="_blank" rel="noopener noreferrer">
-              Download file {index + 1}
-            </a> */}
           </div>
         ))}
       </div>
-      <br />
-      <p style={{ fontSize: "larger" }}>
+      <p style={{ fontSize: "larger", marginTop: "30px" }}>
         Click the "Home" link at the top of the screen to compress more files.
       </p>
     </div>
