@@ -8,12 +8,15 @@ function ZippedIt() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  console.log("zipped it page: name = ", name);
+  console.log(uploadTime);
+
   const fetchZippedFiles = async () => {
     try {
       const response = await fetch("http://localhost:3001/users/download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, uploadTime }),
+        body: JSON.stringify({ name: name, uploadTime: uploadTime }),
       });
       if (response.ok) {
         const data = await response.json();
