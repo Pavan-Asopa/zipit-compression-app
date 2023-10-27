@@ -20,13 +20,13 @@ const s3 = new AWS.S3();
     // try creating a new bucket
     await s3.createBucket({ Bucket: bucketName }).promise();
     console.log(`Created bucket: ${bucketName}`);
-  } catch (err) {
+  } catch (error) {
     // check whether bucket already exists
-    if (err.statusCode === 409) {
+    if (error.statusCode === 409) {
       console.log(`Bucket ${bucketName} already exists`);
     } else {
       // print any other errors in creating the bucket
-      console.log(`Error creating bucket: ${err}`);
+      console.log(`Error creating bucket: ${error}`);
     }
   }
 })();

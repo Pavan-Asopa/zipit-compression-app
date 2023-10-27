@@ -71,13 +71,13 @@ router.post("/", async (req, res) => {
     });
   };
 
-  // check for files and return links for user to download from front end
+  // check for files and return response, which includes links for user to download from front end
   checkForFiles()
     .then((downloadLinks) => {
       res.json(downloadLinks);
     })
     .catch((error) => {
-      // catch and return errors
+      // catch errors and return response
       console.error("Error during file retrieval", error);
       res.status(500).json({ error: "File retrieval failed" });
     });

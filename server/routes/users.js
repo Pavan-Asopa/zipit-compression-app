@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const AWS = require("aws-sdk");
 require("dotenv").config();
+const AdmZip = require("adm-zip"); // compression
 
 // configure aws sdk
 AWS.config.update({
@@ -11,10 +12,15 @@ AWS.config.update({
   region: "ap-southeast-2",
 });
 
+// create a unique bucket
+const bucketName = "zipit-storage";
+const s3 = new AWS.S3();
+
+// sqs queue info
 const sqs = new AWS.SQS({ region: "ap-southeast-2" });
 const queueName = "ZipIt.fifo";
-
-const AdmZip = require("adm-zip");
+const queueUrl =
+  "https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo";
 
 async function checkAndCreateQueue() {
   try {
@@ -23,7 +29,7 @@ async function checkAndCreateQueue() {
       .getQueueUrl({ QueueName: queueName })
       .promise();
 
-    console.log(`Queue ${queueName} already exists with URL: ${QueueUrl}`);
+    console.log(`Queue ${queueName} already exists`);
   } catch (error) {
     if (error.code === "AWS.SimpleQueueService.NonExistentQueue") {
       // Queue doesn't exist, create it
@@ -34,40 +40,15 @@ async function checkAndCreateQueue() {
           ContentBasedDeduplication: "true",
         },
       };
-
       const { QueueUrl } = await sqs.createQueue(params).promise();
-
-      console.log(`Queue ${queueName} created with URL: ${QueueUrl}`);
+      console.log(`Created queue: ${queueName}`);
+      return QueueUrl;
     } else {
       throw error;
     }
   }
 }
-
 checkAndCreateQueue().catch((error) => console.error("Error:", error));
-
-const queueUrl =
-  "https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo";
-
-// // create a unique bucket
-// const bucketName = "zipit-storage";
-// const s3 = new AWS.S3();
-
-// (async () => {
-//   try {
-//     // try creating a new bucket
-//     await s3.createBucket({ Bucket: bucketName }).promise();
-//     console.log(`Created bucket: ${bucketName}`);
-//   } catch (err) {
-//     // check whether bucket already exists
-//     if (err.statusCode === 409) {
-//       console.log(`Bucket ${bucketName} already exists`);
-//     } else {
-//       // print any other errors in creating the bucket
-//       console.log(`Error creating bucket: ${err}`);
-//     }
-//   }
-// })();
 
 // file compression
 async function processQueueMessage(message) {
@@ -97,7 +78,7 @@ async function processQueueMessage(message) {
 
     await s3.upload(uploadParams).promise();
     console.log(
-      `File ${fileName} compressed and saved as ${compressedFileName} in S3.`
+      `File ${fileName} compressed and saved as ${compressedFileName} in S3`
     );
 
     // delete the processed message from the queue
@@ -136,7 +117,7 @@ async function pollQueue() {
       .receiveMessage({
         QueueUrl: queueUrl,
         MaxNumberOfMessages: 1,
-        WaitTimeSeconds: 20, // adjusting wait time as needed
+        WaitTimeSeconds: 10, // adjusting wait time as needed
       })
       .promise();
 
