@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 // function to create an upload form for the user to complete to compress their file(s)
 function UploadForm() {
-  // set states for name, number of files, and selected files
+  // set states for name, selected files, and upload time
   const [name, setName] = useState("");
-  const [numFiles, setNumFiles] = useState(1);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadTime, setUploadTime] = useState(null);
 
@@ -18,11 +17,6 @@ function UploadForm() {
   // function to set name when user enters text in name box
   const handleNameInputChange = (event) => {
     setName(event.target.value);
-  };
-
-  // function to set number of files when user selects a number
-  const handleNumFileChange = (event) => {
-    setNumFiles(event.target.value);
   };
 
   // function to set selected files to those selected by the user
@@ -44,8 +38,8 @@ function UploadForm() {
   const clearForm = () => {
     // clear states
     setName("");
-    setNumFiles(1);
-    setNumFiles([]);
+    setSelectedFiles([]);
+    setUploadTime(null);
 
     // reset the form (applies to file input field)
     formRef.current.reset();
@@ -60,9 +54,8 @@ function UploadForm() {
       // create a formData object to send files to the backend
       const formData = new FormData();
 
-      // append user's name, number of files, and upload time to the form data to easily identify it
+      // append user's name and upload time to the form data to easily identify it
       formData.append("name", name);
-      formData.append("numFiles", numFiles);
       formData.append("uploadTime", uploadTime);
 
       // append selected files to the formData object

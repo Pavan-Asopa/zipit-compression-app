@@ -107,9 +107,8 @@ router.get("/", function (req, res, next) {
 
 router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
   const name = req.body.name;
-  // const numFiles = req.numFiles;
-  const uploadedFiles = req.files;
   const time = req.body.uploadTime;
+  const uploadedFiles = req.files;
 
   if (!uploadedFiles) {
     return res.status(400).json({ error: "Invalid request data" });
@@ -186,15 +185,17 @@ async function processQueueMessage(message) {
       .promise();
   } catch (error) {
     if (error.statusCode === 404) {
-      console.log("Specified file to compress in not present in the s3 bucket. Deleting message from queue");
+      console.log(
+        "Specified file to compress in not present in the s3 bucket. Deleting message from queue"
+      );
       await sqs
-      .deleteMessage({
-        QueueUrl: queueUrl,
-        ReceiptHandle: message.ReceiptHandle,
-      })
-      .promise();
+        .deleteMessage({
+          QueueUrl: queueUrl,
+          ReceiptHandle: message.ReceiptHandle,
+        })
+        .promise();
     } else {
-    console.error("Error processing message:", error);
+      console.error("Error processing message:", error);
     }
   }
 }
@@ -211,15 +212,14 @@ async function pollQueue() {
       .receiveMessage({
         QueueUrl: queueUrl,
         MaxNumberOfMessages: 1,
-        WaitTimeSeconds: 20, // Adjust the wait time as needed
+        WaitTimeSeconds: 20, // adjusting wait time as needed
       })
       .promise();
 
     if (messages.Messages && messages.Messages.length > 0) {
       const message = messages.Messages[0];
       await processQueueMessage(message);
-    }
-    else {
+    } else {
       console.log("No messages in the queue, continuing to poll for messages");
     }
   }
@@ -231,6 +231,34 @@ pollQueue();
 
 router.post("/download", async (req, res) => {
   const name = req.body.name;
+  const uploadTime = req.body.uploadTime;
+  console.log("Name:", name);
+  console.log("Time:", uploadTime);
+
+  const prefix = `zipped/${name}-${uploadTime}-`;
+  console.log("prefix:", prefix);
+
+  // search zipped folder of S3 bucket for file(s)
+  const searchParams = {
+    Bucket: bucketName,
+    Prefix: prefix,
+  };
+
+  s3.listObjectsV2(searchParams, (error, data) => {
+    if (error) {
+      console.error(error);
+    }
+
+    const fileNames = data.Contents.filter((object) =>
+      object.Key.startsWith(prefix)
+    );
+    res.json(fileNames);
+  });
+
+  // for (i = 0; i < numFiles; i++) {
+  //   const compressedFile = await s3.getObject(searchParams).promise();
+  //   compressedFiles.append(compressedFile);
+  // }
 });
 
 module.exports = router;
