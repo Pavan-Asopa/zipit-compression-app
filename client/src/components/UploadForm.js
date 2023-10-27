@@ -67,7 +67,7 @@ function UploadForm() {
       }
 
       // make a post request to the backend to upload files to S3 bucket
-      const response = await fetch("http://localhost:3001/users/uploadToS3", {
+      const response = await fetch("http://localhost:3001/uploadAndQueue", {
         method: "POST",
         body: formData,
       });

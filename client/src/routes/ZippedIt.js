@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { LuDownload } from "react-icons/lu";
-import Spinner from "react-bootstrap/Spinner";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
@@ -13,7 +12,7 @@ function ZippedIt() {
   useEffect(() => {
     const fetchZippedFiles = async () => {
       try {
-        const response = await fetch("http://localhost:3001/users/download", {
+        const response = await fetch("http://localhost:3001/return", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -41,12 +40,9 @@ function ZippedIt() {
 
   if (loading) {
     return (
-      <div>
-        <p style={{ fontSize: "larger", marginTop: "40px" }}>
-          Compressing your files...
-        </p>
-        {/* <Spinner animation="border" /> */}
-      </div>
+      <p style={{ fontSize: "larger", marginTop: "40px" }}>
+        Compressing your files...
+      </p>
     );
   }
 

@@ -1,17 +1,7 @@
 var express = require("express");
 var router = express.Router();
-
-// aws variables / setup
 const AWS = require("aws-sdk");
 require("dotenv").config();
-
-// file transfer
-const multer = require("multer");
-const storage = multer.memoryStorage();
-
-// file compression
-const AdmZip = require("adm-zip");
-const fs = require("fs");
 
 // configure aws sdk
 AWS.config.update({
@@ -22,8 +12,9 @@ AWS.config.update({
 });
 
 const sqs = new AWS.SQS({ region: "ap-southeast-2" });
-
 const queueName = "ZipIt.fifo";
+
+const AdmZip = require("adm-zip");
 
 async function checkAndCreateQueue() {
   try {
@@ -53,90 +44,30 @@ async function checkAndCreateQueue() {
   }
 }
 
-checkAndCreateQueue()
-  // .then(() => console.log('Queue check and creation complete'))
-  .catch((error) => console.error("Error:", error));
+checkAndCreateQueue().catch((error) => console.error("Error:", error));
 
 const queueUrl =
   "https://sqs.ap-southeast-2.amazonaws.com/901444280953/ZipIt.fifo";
 
-// function to send a message to the SQS FIFO queue
-const sendMessageToQueue = async (messageBody) => {
-  const params = {
-    MessageBody: messageBody,
-    QueueUrl: queueUrl,
-    MessageGroupId: "file-compression",
-  };
+// // create a unique bucket
+// const bucketName = "zipit-storage";
+// const s3 = new AWS.S3();
 
-  return sqs.sendMessage(params).promise();
-};
-
-// create a unique bucket
-const bucketName = "zipit-storage";
-const s3 = new AWS.S3();
-
-// create multer upload object
-const upload = multer({ storage: storage });
-
-(async () => {
-  try {
-    // try creating a new bucket
-    await s3.createBucket({ Bucket: bucketName }).promise();
-    console.log(`Created bucket: ${bucketName}`);
-  } catch (err) {
-    // check whether bucket already exists
-    if (err.statusCode === 409) {
-      console.log(`Bucket ${bucketName} already exists`);
-    } else {
-      // print any other errors in creating the bucket
-      console.log(`Error creating bucket: ${err}`);
-    }
-  }
-})();
-
-/* GET users listing. */
-router.get("/", function (req, res, next) {
-  res.send("Respond with a resource");
-});
-
-router.post("/uploadToS3", upload.array("files", 5), async (req, res) => {
-  const name = req.body.name;
-  const time = req.body.uploadTime;
-  const uploadedFiles = req.files;
-
-  if (!uploadedFiles) {
-    return res.status(400).json({ error: "Invalid request data" });
-  }
-
-  try {
-    const s3UploadPromises = [];
-    // const uploadTime = Date.now();
-    for (const file of uploadedFiles) {
-      const params = {
-        Bucket: "zipit-storage",
-        Key: `${name}-${time}-${file.originalname}`,
-        Body: file.buffer, // uploaded file data
-      };
-      s3UploadPromises.push(s3.upload(params).promise());
-      console.log(`File ${file.originalname} uploaded to s3 bucket`);
-    }
-    await Promise.all(s3UploadPromises);
-
-    for (const file of uploadedFiles) {
-      //const fileName = file.originalname;
-      const message = `${name}-${time}-${file.originalname}`;
-      await sendMessageToQueue(JSON.stringify({ message }));
-      console.log(`File ${file.originalname} added to queue`);
-    }
-
-    res
-      .status(200)
-      .json({ message: `Files uploaded to s3 and queued for processing` });
-  } catch (error) {
-    console.error("Error uploading files to S3 or queuing:", error);
-    res.status(500).json({ error: "Failed to upload files to S3" });
-  }
-});
+// (async () => {
+//   try {
+//     // try creating a new bucket
+//     await s3.createBucket({ Bucket: bucketName }).promise();
+//     console.log(`Created bucket: ${bucketName}`);
+//   } catch (err) {
+//     // check whether bucket already exists
+//     if (err.statusCode === 409) {
+//       console.log(`Bucket ${bucketName} already exists`);
+//     } else {
+//       // print any other errors in creating the bucket
+//       console.log(`Error creating bucket: ${err}`);
+//     }
+//   }
+// })();
 
 // file compression
 async function processQueueMessage(message) {
@@ -220,68 +151,9 @@ async function pollQueue() {
 
 pollQueue();
 
-// return compressed file to front end
-router.post("/download", async (req, res) => {
-  const name = req.body.name;
-  const uploadTime = req.body.uploadTime;
-  const numFiles = req.body.numFiles;
-  const prefix = `zipped/${name}-${uploadTime}-`;
-
-  // search zipped folder of S3 bucket for file(s)
-  const searchParams = {
-    Bucket: bucketName,
-    Prefix: prefix,
-  };
-
-  let receivedFiles = [];
-
-  const checkForFiles = () => {
-    return new Promise((resolve, reject) => {
-      const poll = () => {
-        s3.listObjectsV2(searchParams, (error, data) => {
-          if (error) {
-            console.error(error);
-            reject(error);
-            return;
-          }
-
-          const fileNames = data.Contents.filter((object) =>
-            object.Key.startsWith(prefix)
-          ).map((object) => object.Key.replace("zipped/", ""));
-
-          receivedFiles = receivedFiles.concat(fileNames);
-
-          if (receivedFiles.length >= numFiles) {
-            const downloadLinks = receivedFiles.map((fileName) => {
-              const params = {
-                Bucket: bucketName,
-                Key: `zipped/${fileName}`,
-                Expires: 3600,
-              };
-              const presignedURL = s3.getSignedUrl("getObject", params);
-              return {
-                name: fileName,
-                link: presignedURL,
-              };
-            });
-            resolve(downloadLinks);
-          } else {
-            setTimeout(poll, 5000);
-          }
-        });
-      };
-      poll();
-    });
-  };
-
-  checkForFiles()
-    .then((downloadLinks) => {
-      res.json(downloadLinks);
-    })
-    .catch((error) => {
-      console.error("Error during file retrieval", error);
-      res.status(500).json({ error: "File retrieval failed" });
-    });
+/* GET users listing. */
+router.get("/", function (req, res, next) {
+  res.send("Respond with a resource");
 });
 
 module.exports = router;
