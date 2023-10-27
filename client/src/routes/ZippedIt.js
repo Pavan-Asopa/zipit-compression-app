@@ -3,39 +3,46 @@ import { useParams } from "react-router-dom";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
-  const { name, uploadTime } = useParams();
+  const { name, uploadTime, numFiles } = useParams();
   const [downloadLinks, setDownloadLinks] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchZippedFiles = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/users/download", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, uploadTime: uploadTime }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      } else {
-        console.error("Error");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchZippedFiles()
-      .then((response) => console.log("Array from server:", response))
-      .catch((error) => setError(error.message))
-      .finally(() => setLoading(false));
-    //.then(setDownloadLinks(response));
-  }, []);
+    const fetchZippedFiles = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/users/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name,
+            uploadTime: uploadTime,
+            numFiles: numFiles,
+          }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setDownloadLinks(data);
+          console.log(data);
+        } else {
+          setError("Server returned error");
+        }
+      } catch (error) {
+        setError("Error while fetching");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchZippedFiles();
+  }, [name, uploadTime, numFiles]);
 
   if (loading) {
     return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
   }
 
   return (
@@ -43,18 +50,16 @@ function ZippedIt() {
       <p style={{ fontSize: "larger" }}>
         Your compressed files are available to download below.
       </p>
-      {/* <div>
+      <div>
         {downloadLinks.map((link, index) => (
           <div key={index}>
-            <a
-              href={`data:application/octet-stream;base64,${link.fileContent}`}
-              download={link.fileName}
-            >
+            <a href={link} target="_blank" rel="noopener noreferrer">
+              Download file {index + 1}
               {link.fileName}
             </a>
           </div>
         ))}
-      </div> */}
+      </div>
       <br />
       <p style={{ fontSize: "larger" }}>
         Click the "Home" link at the top of the screen to compress more files.

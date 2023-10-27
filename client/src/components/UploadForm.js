@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 function UploadForm() {
   // set states for name, selected files, and upload time
   const [name, setName] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadTime, setUploadTime] = useState(null);
+  const [numFiles, setNumFiles] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   // set reference for form
   const formRef = useRef(null);
@@ -29,7 +30,8 @@ function UploadForm() {
       event.target.value = null;
     } else {
       // set selected files and upload time
-      setSelectedFiles(files);
+      setSelectedFiles(files); // set files
+      setNumFiles(selectedFilesArray.length); // set number of files based on array length
       setUploadTime(Date.now()); // upload time based on time files are selected
     }
   };
@@ -38,8 +40,9 @@ function UploadForm() {
   const clearForm = () => {
     // clear states
     setName("");
-    setSelectedFiles([]);
     setUploadTime(null);
+    setNumFiles(0);
+    setSelectedFiles([]);
 
     // reset the form (applies to file input field)
     formRef.current.reset();
@@ -75,7 +78,7 @@ function UploadForm() {
         clearForm(); // clear form upon submission
 
         // navigate to page where user will receive compressed files for download, passing necessary paramaters
-        navigate(`/zippedIt/${name}/${uploadTime}`);
+        navigate(`/zippedIt/${name}/${uploadTime}/${numFiles}`);
       } else {
         // check for errors
         console.error(

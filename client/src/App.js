@@ -18,7 +18,7 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/zippedIt/:name/:uploadTime",
+        path: "/zippedIt/:name/:uploadTime/:numFiles",
         element: <ZippedIt />,
       },
     ],
