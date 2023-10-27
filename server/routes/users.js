@@ -232,11 +232,7 @@ pollQueue();
 router.post("/download", async (req, res) => {
   const name = req.body.name;
   const uploadTime = req.body.uploadTime;
-  console.log("Name:", name);
-  console.log("Time:", uploadTime);
-
   const prefix = `zipped/${name}-${uploadTime}-`;
-  console.log("prefix:", prefix);
 
   // search zipped folder of S3 bucket for file(s)
   const searchParams = {

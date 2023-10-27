@@ -8,9 +8,6 @@ function ZippedIt() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  console.log("zipped it page: name = ", name);
-  console.log(uploadTime);
-
   const fetchZippedFiles = async () => {
     try {
       const response = await fetch("http://localhost:3001/users/download", {
@@ -31,7 +28,7 @@ function ZippedIt() {
 
   useEffect(() => {
     fetchZippedFiles()
-      .then((response) => console.log(response))
+      .then((response) => console.log("Array from server:", response))
       .catch((error) => setError(error.message))
       .finally(() => setLoading(false));
     //.then(setDownloadLinks(response));
