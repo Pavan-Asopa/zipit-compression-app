@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
@@ -53,10 +53,14 @@ function ZippedIt() {
       <div>
         {downloadLinks.map((link, index) => (
           <div key={index}>
-            <a href={link} target="_blank" rel="noopener noreferrer">
+            <Link to={link.link}>
+              <button>
+                Download file: {link.name.split("-").slice(2).join("-")}
+              </button>
+            </Link>
+            {/* <a href={link.link} target="_blank" rel="noopener noreferrer">
               Download file {index + 1}
-              {link.fileName}
-            </a>
+            </a> */}
           </div>
         ))}
       </div>
