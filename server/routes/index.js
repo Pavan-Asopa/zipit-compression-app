@@ -31,6 +31,39 @@ const s3 = new AWS.S3();
   }
 })();
 
+
+//create/check SQS queue
+const sqs = new AWS.SQS({ region: "ap-southeast-2" });
+const queueName = "ZipIt.fifo";
+
+async function checkAndCreateQueue() {
+  try {
+    // Check if the queue exists
+    const { QueueUrl } = await sqs
+      .getQueueUrl({ QueueName: queueName })
+      .promise();
+
+    console.log(`Queue ${queueName} already exists`);
+  } catch (error) {
+    if (error.code === "AWS.SimpleQueueService.NonExistentQueue") {
+      // Queue doesn't exist, create it
+      const params = {
+        QueueName: queueName,
+        Attributes: {
+          FifoQueue: "true",
+          ContentBasedDeduplication: "true",
+        },
+      };
+      const { QueueUrl } = await sqs.createQueue(params).promise();
+      console.log(`Created queue: ${queueName}`);
+      return QueueUrl;
+    } else {
+      throw error;
+    }
+  }
+}
+checkAndCreateQueue().catch((error) => console.error("Error:", error));
+
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "ZipIt Server" });
