@@ -12,7 +12,7 @@ function ZippedIt() {
   useEffect(() => {
     const fetchZippedFiles = async () => {
       try {
-        const response = await fetch("http://localhost:3001/return", {
+        const response = await fetch("http://ec2-3-27-244-30.ap-southeast-2.compute.amazonaws.com:3001/return", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
