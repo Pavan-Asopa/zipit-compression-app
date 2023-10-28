@@ -31,8 +31,7 @@ const s3 = new AWS.S3();
   }
 })();
 
-
-//create/check SQS queue
+// create/check SQS queue
 const sqs = new AWS.SQS({ region: "ap-southeast-2" });
 const queueName = "ZipIt.fifo";
 
