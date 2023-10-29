@@ -12,15 +12,18 @@ function ZippedIt() {
   useEffect(() => {
     const fetchZippedFiles = async () => {
       try {
-        const response = await fetch("http://ec2-3-27-244-30.ap-southeast-2.compute.amazonaws.com:3001/return", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: name,
-            uploadTime: uploadTime,
-            numFiles: numFiles,
-          }),
-        });
+        const response = await fetch(
+          "http://ec2-13-236-93-47.ap-southeast-2.compute.amazonaws.com:3001/return",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: name,
+              uploadTime: uploadTime,
+              numFiles: numFiles,
+            }),
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           setDownloadLinks(data);
