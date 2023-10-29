@@ -68,7 +68,7 @@ function UploadForm() {
 
       // make a post request to the backend to upload files to S3 bucket
       const response = await fetch(
-        "http://ec2-13-236-93-47.ap-southeast-2.compute.amazonaws.com:3001/uploadAndQueue",
+        "http://ZipIt-load-balancer-892221555.ap-southeast-2.elb.amazonaws.com:3001/uploadAndQueue",
         {
           method: "POST",
           body: formData,
