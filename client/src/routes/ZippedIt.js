@@ -13,7 +13,7 @@ function ZippedIt() {
     const fetchZippedFiles = async () => {
       try {
         const response = await fetch(
-          "http://zipit-load-balancer-892221555.ap-southeast-2.elb.amazonaws.com/return",
+          "http://ec2-3-27-160-68.ap-southeast-2.compute.amazonaws.com:3001/return",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
