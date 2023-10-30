@@ -1,7 +1,4 @@
-var express = require("express");
-var router = express.Router();
 const AWS = require("aws-sdk");
-require("dotenv").config();
 const AdmZip = require("adm-zip");
 
 // s3 bucket info
@@ -95,5 +92,3 @@ async function pollQueue() {
 }
 
 pollQueue();
-
-module.exports = router;
