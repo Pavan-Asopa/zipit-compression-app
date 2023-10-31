@@ -23,7 +23,10 @@ router.post("/", async (req, res) => {
   };
 
   // create empty array to hold retrieved file names
-  let retrievedFiles = [];
+  // let retrievedFiles = [];
+
+  // create a set to hold retrieved unique file names
+  let retrievedFiles = new Set();
 
   // check s3 bucket for specified files
   const checkForFiles = () => {
@@ -44,11 +47,14 @@ router.post("/", async (req, res) => {
           ).map((object) => object.Key.replace("zipped/", ""));
 
           // add retrieved files to array
-          retrievedFiles = retrievedFiles.concat(fileNames);
+          // retrievedFiles = retrievedFiles.concat(fileNames);
+
+          // add retrieved files to set to ensure uniqueness
+          fileNames.forEach((fileName) => retrievedFiles.add(fileName));
 
           // check whether length of retrieved files array matches the number of files expected
-          if (retrievedFiles.length >= numFiles) {
-            const downloadLinks = retrievedFiles.map((fileName) => {
+          if (retrievedFiles.size >= numFiles) {
+            const downloadLinks = Array.from(retrievedFiles).map((fileName) => {
               const params = {
                 Bucket: bucketName,
                 Key: `zipped/${fileName}`,
@@ -63,7 +69,7 @@ router.post("/", async (req, res) => {
             resolve(downloadLinks);
           } else {
             // set timeout to keep polling bucket until retrieve correct number of files
-            setTimeout(pollBucket, 5000);
+            setTimeout(pollBucket, 10000);
           }
         });
       };
