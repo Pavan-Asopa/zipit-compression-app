@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { LuDownload } from "react-icons/lu";
+import RiseLoader from "react-spinners/RiseLoader";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
@@ -42,9 +43,26 @@ function ZippedIt() {
 
   if (loading) {
     return (
-      <p style={{ fontSize: "larger", color: "#0392FF", marginTop: "40px" }}>
-        Compressing your files...
-      </p>
+      <div>
+        <p
+          style={{
+            fontSize: "larger",
+            color: "#0392FF",
+            marginTop: "40px",
+            marginBottom: "40px",
+          }}
+        >
+          Compressing your files...
+        </p>
+        <RiseLoader
+          color="#FF9C50"
+          loading={loading}
+          // cssOverride={override}
+          margin={10}
+          aria-label="Loading Spinner"
+          data-testid="loader"
+        />
+      </div>
     );
   }
 
