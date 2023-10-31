@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { LuDownload } from "react-icons/lu";
 import RiseLoader from "react-spinners/RiseLoader";
+import { fetchConfig } from "../utils/fetchConfig";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
@@ -12,19 +13,18 @@ function ZippedIt() {
 
   useEffect(() => {
     const fetchZippedFiles = async () => {
+      // call fetchConfig() to get backend URL
+      const backendURL = await fetchConfig();
       try {
-        const response = await fetch(
-          "http://ec2-3-27-160-68.ap-southeast-2.compute.amazonaws.com:3001/return",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: name,
-              uploadTime: uploadTime,
-              numFiles: numFiles,
-            }),
-          }
-        );
+        const response = await fetch(`${backendURL}/return`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name,
+            uploadTime: uploadTime,
+            numFiles: numFiles,
+          }),
+        });
         if (response.ok) {
           const data = await response.json();
           setDownloadLinks(data);

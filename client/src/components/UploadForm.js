@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchConfig } from "../utils/fetchConfig";
 
 // function to create an upload form for the user to complete to compress their file(s)
 function UploadForm() {
@@ -72,14 +73,14 @@ function UploadForm() {
         formData.append("files", file);
       }
 
+      // call fetchConfig() to get backend URL
+      const backendURL = await fetchConfig();
+
       // make a post request to the backend to upload files to S3 bucket
-      const response = await fetch(
-        "http://ec2-3-27-160-68.ap-southeast-2.compute.amazonaws.com:3001/uploadAndQueue",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`${backendURL}/uploadAndQueue`, {
+        method: "POST",
+        body: formData,
+      });
 
       // check whether response is successful
       if (response.ok) {
