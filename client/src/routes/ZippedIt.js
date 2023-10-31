@@ -27,7 +27,6 @@ function ZippedIt() {
         );
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setDownloadLinks(data);
         } else {
           setError("Server returned error");
@@ -58,9 +57,8 @@ function ZippedIt() {
         <RiseLoader
           color="#FF9C50"
           loading={loading}
-          // cssOverride={override}
           margin={10}
-          aria-label="Loading Spinner"
+          aria-label="loading icon"
           data-testid="loader"
         />
       </div>

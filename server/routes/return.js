@@ -22,9 +22,6 @@ router.post("/", async (req, res) => {
     Prefix: prefix,
   };
 
-  // create empty array to hold retrieved file names
-  // let retrievedFiles = [];
-
   // create a set to hold retrieved unique file names
   let retrievedFiles = new Set();
 
@@ -45,9 +42,6 @@ router.post("/", async (req, res) => {
           const fileNames = data.Contents.filter((object) =>
             object.Key.startsWith(prefix)
           ).map((object) => object.Key.replace("zipped/", ""));
-
-          // add retrieved files to array
-          // retrievedFiles = retrievedFiles.concat(fileNames);
 
           // add retrieved files to set to ensure uniqueness
           fileNames.forEach((fileName) => retrievedFiles.add(fileName));
