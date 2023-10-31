@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 // function to create an upload form for the user to complete to compress their file(s)
 function UploadForm() {
-  // set states for name, selected files, and upload time
+  // set states for name, upload time, number of files, and selected files
   const [name, setName] = useState("");
   const [uploadTime, setUploadTime] = useState(null);
   const [numFiles, setNumFiles] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState([]);
+
+  // loading state used for rendering form
+  const [loading, setLoading] = useState(false);
 
   // set reference for form
   const formRef = useRef(null);
@@ -52,6 +55,7 @@ function UploadForm() {
   // function to handle submission of the upload form
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     try {
       // create a formData object to send files to the backend
@@ -78,6 +82,7 @@ function UploadForm() {
       // check whether response is successful
       if (response.ok) {
         console.log("Files uploaded to S3 successfully.");
+        setLoading(false);
         clearForm(); // clear form upon submission
 
         // navigate to page where user will receive compressed files for download, passing necessary paramaters
@@ -91,50 +96,58 @@ function UploadForm() {
         );
       }
     } catch (error) {
+      setLoading(false);
       // catch any other errors
       console.error("Error uploading files for compression: ", error);
     }
   };
 
   return (
-    <div className="form">
-      <div className="form-container">
-        <form id="fileUploadForm" ref={formRef} onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="firstName" style={{ fontSize: "larger" }}>
-              Name to be associated with job
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              placeholder="Your Name"
-              value={name}
-              onChange={handleNameInputChange}
-              style={{ fontSize: "larger" }}
-              required={true}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
-              Select up to 5 files for upload
-            </label>
-            <input
-              type="file"
-              name="filesForUpload"
-              multiple
-              onChange={handleFileSelect}
-              style={{
-                fontSize: "larger",
-              }}
-              required={true}
-            />
-          </div>
-          <button type="submit" className="submit-button">
-            ZipIt
-          </button>
-        </form>
+    <div>
+      <div className="form">
+        <div className="form-container">
+          <form id="fileUploadForm" ref={formRef} onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="firstName" style={{ fontSize: "larger" }}>
+                Name to be associated with job
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                placeholder="Your Name"
+                value={name}
+                onChange={handleNameInputChange}
+                style={{ fontSize: "larger" }}
+                required={true}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
+                Select up to 5 files for upload
+              </label>
+              <input
+                type="file"
+                name="filesForUpload"
+                multiple
+                onChange={handleFileSelect}
+                style={{
+                  fontSize: "larger",
+                }}
+                required={true}
+              />
+            </div>
+            <button type="submit" className="submit-button">
+              ZipIt
+            </button>
+          </form>
+        </div>
       </div>
+      {loading && (
+        <p style={{ fontSize: "larger" }}>
+          Your files are being uploaded. Thanks for your patience!
+        </p>
+      )}
     </div>
   );
 }
