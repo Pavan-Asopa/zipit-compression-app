@@ -26,7 +26,7 @@ function UploadForm() {
   // function to set selected files to those selected by the user
   const handleFileSelect = (event) => {
     const files = event.target.files;
-    const maxFiles = 15; // max allowed files
+    const maxFiles = 20; // max allowed files
 
     if (files.length <= maxFiles) {
       // clear previous selections before updating state
@@ -125,7 +125,7 @@ function UploadForm() {
             </div>
             <div className="form-group">
               <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
-                Select up to 15 files for upload
+                Select up to 20 files for upload
               </label>
               <input
                 type="file"

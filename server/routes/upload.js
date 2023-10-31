@@ -27,7 +27,7 @@ const sendMessageToQueue = async (messageBody) => {
   return sqs.sendMessage(params).promise();
 };
 
-router.post("/", upload.array("files", 15), async (req, res) => {
+router.post("/", upload.array("files", 20), async (req, res) => {
   const name = req.body.name; // get name from request body
   const uploadTime = req.body.uploadTime; // get upload time from request body
   const uploadedFiles = req.files; // get uploaded files from form data files

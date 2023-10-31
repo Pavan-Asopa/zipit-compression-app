@@ -27,6 +27,7 @@ function ZippedIt() {
         );
         if (response.ok) {
           const data = await response.json();
+          console.log(data);
           setDownloadLinks(data);
         } else {
           setError("Server returned error");
