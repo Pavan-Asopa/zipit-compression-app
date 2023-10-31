@@ -26,16 +26,19 @@ function UploadForm() {
   // function to set selected files to those selected by the user
   const handleFileSelect = (event) => {
     const files = event.target.files;
-    const selectedFilesArray = Array.from(files);
-    if (selectedFilesArray.length > 5) {
-      // check length of selected file array
-      alert("You can only select a maximum of 5 files"); // display alert if user selects > 5 files
-      event.target.value = null;
+    const maxFiles = 15; // max allowed files
+
+    if (files.length <= maxFiles) {
+      // clear previous selections before updating state
+      setSelectedFiles([]);
+
+      // update state with currently selected files
+      setSelectedFiles(Array.from(files));
+      setNumFiles(files.length);
+      setUploadTime(Date.now());
     } else {
-      // set selected files and upload time
-      setSelectedFiles(files); // set files
-      setNumFiles(selectedFilesArray.length); // set number of files based on array length
-      setUploadTime(Date.now()); // upload time based on time files are selected
+      alert(`You can only select up to ${maxFiles} files`); // display alert if selected files exceeds max
+      event.target.value = null;
     }
   };
 
@@ -49,7 +52,6 @@ function UploadForm() {
 
     // reset the form (applies to file input field)
     formRef.current.reset();
-    console.log("Upload form successfully cleared");
   };
 
   // function to handle submission of the upload form
@@ -81,7 +83,6 @@ function UploadForm() {
 
       // check whether response is successful
       if (response.ok) {
-        console.log("Files uploaded to S3 successfully.");
         setLoading(false);
         clearForm(); // clear form upon submission
 
@@ -124,7 +125,7 @@ function UploadForm() {
             </div>
             <div className="form-group">
               <label htmlFor="filesForUpload" style={{ fontSize: "larger" }}>
-                Select up to 5 files for upload
+                Select up to 15 files for upload
               </label>
               <input
                 type="file"
@@ -144,8 +145,11 @@ function UploadForm() {
         </div>
       </div>
       {loading && (
-        <p style={{ fontSize: "larger" }}>
-          Your files are being uploaded. Thanks for your patience!
+        <p style={{ fontSize: "larger", color: "#0392FF" }}>
+          Your files are being uploaded. Please do not navigate away from this
+          page or edit the form any further.
+          <br />
+          Thanks for your patience!
         </p>
       )}
     </div>

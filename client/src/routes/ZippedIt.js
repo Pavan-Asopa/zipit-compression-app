@@ -27,7 +27,6 @@ function ZippedIt() {
         if (response.ok) {
           const data = await response.json();
           setDownloadLinks(data);
-          console.log(data);
         } else {
           setError("Server returned error");
         }
@@ -43,7 +42,7 @@ function ZippedIt() {
 
   if (loading) {
     return (
-      <p style={{ fontSize: "larger", marginTop: "40px" }}>
+      <p style={{ fontSize: "larger", color: "#0392FF", marginTop: "40px" }}>
         Compressing your files...
       </p>
     );
