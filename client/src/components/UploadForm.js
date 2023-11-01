@@ -61,48 +61,101 @@ function UploadForm() {
     setLoading(true);
 
     try {
-      // create a formData object to send files to the backend
-      const formData = new FormData();
-
-      // append user's name and upload time to the form data to easily identify it
-      formData.append("name", name);
-      formData.append("uploadTime", uploadTime);
-
-      // append selected files to the formData object
-      for (const file of selectedFiles) {
-        formData.append("files", file);
-      }
-
       // call fetchConfig() to get backend URL
       const backendURL = await fetchConfig();
 
-      // make a post request to the backend to upload files to S3 bucket
-      const response = await fetch(`${backendURL}/uploadAndQueue`, {
-        method: "POST",
-        body: formData,
-      });
+      const presignedUrlsResponse = await fetch(
+        `${backendURL}/uploadAndQueue/generatePresignedUrls`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: selectedFiles.map((file) => ({
+              fileName: `${name}-${uploadTime}-${file.name}`,
+              fileType: file.type,
+            })),
+          }),
+        }
+      );
 
-      // check whether response is successful
-      if (response.ok) {
-        setLoading(false);
-        clearForm(); // clear form upon submission
+      if (presignedUrlsResponse.ok) {
+        const presignedUrlsData = await presignedUrlsResponse.json();
 
-        // navigate to page where user will receive compressed files for download, passing necessary paramaters
-        navigate(`/zippedIt/${name}/${uploadTime}/${numFiles}`);
-      } else {
-        // check for errors
-        console.error(
-          "Error uploading files for compression: ",
-          response.status,
-          response.statusText
+        // Upload files to S3 using pre-signed URLs
+        await Promise.all(
+          presignedUrlsData.urls.map(async (url, index) => {
+            const formData = new FormData();
+            formData.append("file", selectedFiles[index]);
+            // console.log("sel files index:", selectedFiles[index]);
+            // console.log("form data:", formData);
+            console.log(url);
+
+            //     await fetch(url, {
+            //       method: "PUT",
+            //       body: formData,
+            //     });
+          })
         );
       }
+      setLoading(false);
+      clearForm(); // clear form upon submission
+      // // navigate to page where user will receive compressed files for download, passing necessary paramaters
+      // navigate(`/zippedIt/${name}/${uploadTime}/${numFiles}`);
     } catch (error) {
       setLoading(false);
       // catch any other errors
       console.error("Error uploading files for compression: ", error);
     }
   };
+
+  // // function to handle submission of the upload form
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setLoading(true);
+
+  //   try {
+  //     // create a formData object to send files to the backend
+  //     const formData = new FormData();
+
+  //     // append user's name and upload time to the form data to easily identify it
+  //     formData.append("name", name);
+  //     formData.append("uploadTime", uploadTime);
+
+  //     // append selected files to the formData object
+  //     for (const file of selectedFiles) {
+  //       formData.append("files", file);
+  //     }
+
+  //     // call fetchConfig() to get backend URL
+  //     const backendURL = await fetchConfig();
+
+  //     // make a post request to the backend to upload files to S3 bucket
+  //     const response = await fetch(`${backendURL}/uploadAndQueue`, {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     // check whether response is successful
+  //     if (response.ok) {
+  //       setLoading(false);
+  //       clearForm(); // clear form upon submission
+
+  //       // navigate to page where user will receive compressed files for download, passing necessary paramaters
+  //       navigate(`/zippedIt/${name}/${uploadTime}/${numFiles}`);
+  //     } else {
+  //       // check for errors
+  //       console.error(
+  //         "Error uploading files for compression: ",
+  //         response.status,
+  //         response.statusText
+  //       );
+  //     }
+  //   } catch (error) {
+  //     setLoading(false);
+  //     // catch any other errors
+  //     console.error("Error uploading files for compression: ", error);
+  //   }
+  // };
 
   return (
     <div>
