@@ -52,7 +52,7 @@ router.post("/", async (req, res) => {
               const params = {
                 Bucket: bucketName,
                 Key: `zipped/${fileName}`,
-                Expires: 3600,
+                Expires: 1800, // expiration time in seconds (30 mins)
               };
               const presignedURL = s3.getSignedUrl("getObject", params); // get presigned URL for user to be able to download files
               return {
