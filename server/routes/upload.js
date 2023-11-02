@@ -69,33 +69,5 @@ router.post("/", upload.array("files", 20), async (req, res) => {
   }
 });
 
-router.post("/generatePresignedUrls", async (req, res) => {
-  const { files } = req.body;
-
-  try {
-    const urls = await Promise.all(
-      files.map(async (file) => {
-        const s3Params = {
-          Bucket: bucketName,
-          Key: file.fileName,
-          Expires: 120, // URL expiration time in seconds
-          ContentType: file.fileType,
-        };
-
-        const presignedUrl = await s3.getSignedUrlPromise(
-          "putObject",
-          s3Params
-        );
-        return presignedUrl;
-      })
-    );
-
-    console.log(urls);
-    res.json({ urls: urls });
-  } catch (error) {
-    console.error("Error generating pre-signed URLs:", error);
-    return res.status(500).json({ error: "Error generating pre-signed URLs" });
-  }
-});
 
 module.exports = router;
