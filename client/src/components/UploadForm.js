@@ -10,6 +10,9 @@ function UploadForm() {
   const [numFiles, setNumFiles] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState([]);
 
+  // state for error handling
+  const [error, setError] = useState(null);
+
   // loading state used for rendering form
   const [loading, setLoading] = useState(false);
 
@@ -91,18 +94,25 @@ function UploadForm() {
         navigate(`/zippedIt/${name}/${uploadTime}/${numFiles}`);
       } else {
         // check for errors
-        console.error(
+        setError(
           "Error uploading files for compression: ",
-          response.status,
           response.statusText
         );
       }
     } catch (error) {
       setLoading(false);
       // catch any other errors
-      console.error("Error uploading files for compression: ", error);
+      setError("Error uploading files for compression: ", error);
     }
   };
+
+  if (error) {
+    return (
+      <p style={{ fontSize: "larger", marginTop: "40px" }}>
+        Something unexpected happened. The server may be down.
+      </p>
+    );
+  }
 
   return (
     <div>
