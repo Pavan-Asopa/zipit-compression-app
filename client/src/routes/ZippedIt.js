@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { LuDownload } from "react-icons/lu";
 import RiseLoader from "react-spinners/RiseLoader";
@@ -6,32 +6,41 @@ import { fetchConfig } from "../utils/fetchConfig";
 
 // function to display page where user will have compressed file(s) returned to them to download
 function ZippedIt() {
+  // grab passed parameters of user's name, upload time, and number of files
   const { name, uploadTime, numFiles } = useParams();
-  const [downloadLinks, setDownloadLinks] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
 
+  // constants for download links, loading, and errors
+  const [downloadLinks, setDownloadLinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // useEffect() to fetch zipped files from the server
   useEffect(() => {
     const fetchZippedFiles = async () => {
       // call fetchConfig() to get backend URL
       const backendURL = await fetchConfig();
       try {
+        // post request to /return route, which will search for and return compressed files
         const response = await fetch(`${backendURL}/return`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: name,
+            name: name, // server will use user's name and upload time to search for associated files
             uploadTime: uploadTime,
-            numFiles: numFiles,
+            numFiles: numFiles, // server will use number of files to make sure to return the number the user is expecting
           }),
         });
+
+        // check whether response is successful
         if (response.ok) {
           const data = await response.json();
           setDownloadLinks(data);
         } else {
+          // check for errors
           setError("Server returned error");
         }
       } catch (error) {
+        // catch any other errors
         setError("Error while fetching");
       } finally {
         setLoading(false);
@@ -41,6 +50,7 @@ function ZippedIt() {
     fetchZippedFiles();
   }, [name, uploadTime, numFiles]);
 
+  // display message when loading (during file compression)
   if (loading) {
     return (
       <div>
@@ -65,6 +75,7 @@ function ZippedIt() {
     );
   }
 
+  // display error if server returns an error
   if (error) {
     return (
       <p style={{ fontSize: "larger", marginTop: "40px" }}>
@@ -91,7 +102,7 @@ function ZippedIt() {
                     size={25}
                     style={{ paddingRight: "5px" }}
                   />
-                  Download file: {link.name.split("-").slice(2).join("-")}
+                  Download file: {link.name.split("-").slice(2).join("-")}{" "}
                 </div>
               </button>
             </Link>

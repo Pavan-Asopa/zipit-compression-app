@@ -1,20 +1,18 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchConfig } from "../utils/fetchConfig";
 
 // function to create an upload form for the user to complete to compress their file(s)
 function UploadForm() {
-  // set states for name, upload time, number of files, and selected files
+  // constants for name, upload time, number of files, and selected files
   const [name, setName] = useState("");
   const [uploadTime, setUploadTime] = useState(null);
   const [numFiles, setNumFiles] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // state for error handling
-  const [error, setError] = useState(null);
-
-  // loading state used for rendering form
+  // constants for loading and errors
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // set reference for form
   const formRef = useRef(null);
@@ -33,22 +31,21 @@ function UploadForm() {
     const maxFiles = 20; // max allowed files
 
     if (files.length <= maxFiles) {
-      // clear previous selections before updating state
+      // clear previous selections before updating selected files
       setSelectedFiles([]);
 
-      // update state with currently selected files
+      // update selected files and upload time
       setSelectedFiles(Array.from(files));
       setNumFiles(files.length);
       setUploadTime(Date.now());
     } else {
-      alert(`You can only select up to ${maxFiles} files`); // display alert if selected files exceeds max
+      alert(`You can only select up to ${maxFiles} files`); // display alert if selected files exceed max
       event.target.value = null;
     }
   };
 
   // function to clear upload form upon submission
   const clearForm = () => {
-    // clear states
     setName("");
     setUploadTime(null);
     setNumFiles(0);
@@ -90,7 +87,7 @@ function UploadForm() {
         setLoading(false);
         clearForm(); // clear form upon submission
 
-        // navigate to page where user will receive compressed files for download, passing necessary paramaters
+        // navigate to page where user will receive compressed files for download, passing necessary parameters
         navigate(`/zippedIt/${name}/${uploadTime}/${numFiles}`);
       } else {
         // check for errors
@@ -106,6 +103,7 @@ function UploadForm() {
     }
   };
 
+  // display error if server returns an error
   if (error) {
     return (
       <p style={{ fontSize: "larger", marginTop: "40px" }}>
@@ -155,7 +153,7 @@ function UploadForm() {
           </form>
         </div>
       </div>
-      {loading && (
+      {loading && ( // display loading message when files are being uploaded
         <p style={{ fontSize: "larger", color: "#0392FF" }}>
           Your files are being uploaded. Please do not navigate away from this
           page or edit the form any further.

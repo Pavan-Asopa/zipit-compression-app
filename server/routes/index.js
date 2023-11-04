@@ -11,10 +11,11 @@ AWS.config.update({
   region: "ap-southeast-2",
 });
 
-// create a unique s3 bucket
+// create unique s3 bucket
 const bucketName = "zipit-storage";
 const s3 = new AWS.S3();
 
+// upon the server starting, check for / create s3 bucket
 (async () => {
   try {
     // try creating a new bucket
@@ -31,29 +32,29 @@ const s3 = new AWS.S3();
   }
 })();
 
-// create/check SQS queue
+// create unique SQS queue
 const sqs = new AWS.SQS({ region: "ap-southeast-2" });
 const queueName = "ZipIt.fifo";
 
+// upon the server starting, check for / create SQS queue
 async function checkAndCreateQueue() {
   try {
-    // Check if the queue exists
+    // check whether queue already exists
     const { QueueUrl } = await sqs
       .getQueueUrl({ QueueName: queueName })
       .promise();
-
     console.log(`Queue ${queueName} already exists`);
   } catch (error) {
     if (error.code === "AWS.SimpleQueueService.NonExistentQueue") {
-      // Queue doesn't exist, create it
-      const params = {
+      // if queue doesn't exist, create it
+      const queueParams = {
         QueueName: queueName,
         Attributes: {
           FifoQueue: "true",
           ContentBasedDeduplication: "true",
         },
       };
-      const { QueueUrl } = await sqs.createQueue(params).promise();
+      const { QueueUrl } = await sqs.createQueue(queueParams).promise();
       console.log(`Created queue: ${queueName}`);
       return QueueUrl;
     } else {

@@ -19,14 +19,15 @@ const upload = multer({ storage: storage });
 
 // function to send a message to the SQS FIFO queue
 const sendMessageToQueue = async (messageBody) => {
-  const params = {
+  const messageParams = {
     MessageBody: messageBody,
     QueueUrl: queueUrl,
     MessageGroupId: "file-compression",
   };
-  return sqs.sendMessage(params).promise();
+  return sqs.sendMessage(messageParams).promise();
 };
 
+// post route to upload and queue new files for compression
 router.post("/", upload.array("files", 20), async (req, res) => {
   const name = req.body.name; // get name from request body
   const uploadTime = req.body.uploadTime; // get upload time from request body
@@ -38,36 +39,35 @@ router.post("/", upload.array("files", 20), async (req, res) => {
   }
 
   try {
-    // upload original files to s3 bucket
+    // upload original files to S3 bucket
     const s3UploadPromises = [];
     for (const file of uploadedFiles) {
-      const params = {
+      const bucketParams = {
         Bucket: bucketName,
-        Key: `${name}-${uploadTime}-${file.originalname}`,
+        Key: `${name}-${uploadTime}-${file.originalname}`, // unique key
         Body: file.buffer, // uploaded file data
       };
-      s3UploadPromises.push(s3.upload(params).promise());
-      console.log(`File ${file.originalname} uploaded to s3 bucket`); // print feedback
+      s3UploadPromises.push(s3.upload(bucketParams).promise());
+      console.log(`File ${file.originalname} uploaded to S3 bucket`); // print feedback
     }
-    await Promise.all(s3UploadPromises);
+    await Promise.all(s3UploadPromises); // wait for all files to be uploaded
 
-    // add new message to queue for files to be compressed
+    // add new messages to queue for files to be compressed
     for (const file of uploadedFiles) {
-      const message = `${name}-${uploadTime}-${file.originalname}`; // message will be used to check s3 bucket for matching file when compressing
+      const message = `${name}-${uploadTime}-${file.originalname}`; // message will be used to check S3 bucket for matching file when compressing
       await sendMessageToQueue(JSON.stringify({ message })); // send message to queue
       console.log(`File ${file.originalname} added to queue`); // print feedback
     }
 
-    // return response
+    // return successful response
     res
       .status(200)
-      .json({ message: `Files uploaded to s3 and queued for processing` });
+      .json({ message: `Files uploaded to S3 and queued for processing` });
   } catch (error) {
-    // catch errors and return response
+    // catch errors and return error response
     console.error("Error uploading files to S3 or queuing:", error);
     res.status(500).json({ error: "Failed to upload files to S3" });
   }
 });
-
 
 module.exports = router;

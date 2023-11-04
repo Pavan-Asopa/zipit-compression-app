@@ -7,8 +7,8 @@ const cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-var uploadRouter = require("./routes/upload");
-var returnRouter = require("./routes/return");
+var uploadRouter = require("./routes/upload"); // define upload router
+var returnRouter = require("./routes/return"); // define return router
 
 var app = express();
 
@@ -16,7 +16,7 @@ var app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
 
-app.use(cors());
+app.use(cors()); // enable requests from client
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -25,8 +25,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/uploadAndQueue", uploadRouter);
-app.use("/return", returnRouter);
+app.use("/uploadAndQueue", uploadRouter); // use upload router
+app.use("/return", returnRouter); // use return router
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
