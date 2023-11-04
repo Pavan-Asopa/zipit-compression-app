@@ -9,9 +9,9 @@ const s3 = new AWS.S3();
 
 // post route to return compressed files to client
 router.post("/", async (req, res) => {
-  const name = req.body.name; // get name from request body
-  const uploadTime = req.body.uploadTime; // get upload time from request body
-  const numFiles = req.body.numFiles; // get number of files from request body
+  const name = req.body.name;
+  const uploadTime = req.body.uploadTime;
+  const numFiles = req.body.numFiles;
 
   // create a prefix to be used for searching S3 bucket files
   const prefix = `zipped/${name}-${uploadTime}-`;
@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
                 Key: `zipped/${fileName}`,
                 Expires: 1800, // expiration time in seconds (30 mins)
               };
-              const presignedURL = s3.getSignedUrl("getObject", bucketParams); // get presigned URL for user to be able to download files
+              const presignedURL = s3.getSignedUrl("getObject", bucketParams); // get presigned URL for file download
               return {
                 name: fileName,
                 link: presignedURL,

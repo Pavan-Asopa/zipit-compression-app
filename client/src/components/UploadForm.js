@@ -4,13 +4,10 @@ import { fetchConfig } from "../utils/fetchConfig";
 
 // function to create an upload form for the user to complete to compress their file(s)
 function UploadForm() {
-  // constants for name, upload time, number of files, and selected files
   const [name, setName] = useState("");
   const [uploadTime, setUploadTime] = useState(null);
   const [numFiles, setNumFiles] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState([]);
-
-  // constants for loading and errors
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

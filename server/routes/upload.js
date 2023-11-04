@@ -29,9 +29,9 @@ const sendMessageToQueue = async (messageBody) => {
 
 // post route to upload and queue new files for compression
 router.post("/", upload.array("files", 20), async (req, res) => {
-  const name = req.body.name; // get name from request body
-  const uploadTime = req.body.uploadTime; // get upload time from request body
-  const uploadedFiles = req.files; // get uploaded files from form data files
+  const name = req.body.name;
+  const uploadTime = req.body.uploadTime;
+  const uploadedFiles = req.files;
 
   if (!uploadedFiles) {
     // if there are no files to upload, return error
@@ -48,15 +48,15 @@ router.post("/", upload.array("files", 20), async (req, res) => {
         Body: file.buffer, // uploaded file data
       };
       s3UploadPromises.push(s3.upload(bucketParams).promise());
-      console.log(`File ${file.originalname} uploaded to S3 bucket`); // print feedback
+      console.log(`File ${file.originalname} uploaded to S3 bucket`);
     }
     await Promise.all(s3UploadPromises); // wait for all files to be uploaded
 
     // add new messages to queue for files to be compressed
     for (const file of uploadedFiles) {
-      const message = `${name}-${uploadTime}-${file.originalname}`; // message will be used to check S3 bucket for matching file when compressing
+      const message = `${name}-${uploadTime}-${file.originalname}`; // message used to check S3 bucket for matching file
       await sendMessageToQueue(JSON.stringify({ message })); // send message to queue
-      console.log(`File ${file.originalname} added to queue`); // print feedback
+      console.log(`File ${file.originalname} added to queue`);
     }
 
     // return successful response

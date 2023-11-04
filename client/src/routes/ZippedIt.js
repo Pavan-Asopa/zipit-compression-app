@@ -9,7 +9,6 @@ function ZippedIt() {
   // grab passed parameters of user's name, upload time, and number of files
   const { name, uploadTime, numFiles } = useParams();
 
-  // constants for download links, loading, and errors
   const [downloadLinks, setDownloadLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,9 +24,9 @@ function ZippedIt() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: name, // server will use user's name and upload time to search for associated files
+            name: name, // use name and upload time to search for associated files
             uploadTime: uploadTime,
-            numFiles: numFiles, // server will use number of files to make sure to return the number the user is expecting
+            numFiles: numFiles, // use number of files to make sure to return the number the user is expecting
           }),
         });
 
