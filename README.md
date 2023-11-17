@@ -38,7 +38,7 @@ In the worker project directory, you will need to run:
 
 #### `npm install`
 
-This will install the required dependencies (in a folder called `node_modules`). You will then run:
+This will install the required dependencies (in a folder called `node_modules`). You can then run:
 
 #### `node start`
 
