@@ -1,4 +1,4 @@
-# ZipIt-web-app
+# ZipIt compression web application
 
 This is a web application called ZipIt, which allows users to reduce the size of their files via compression. User can upload up to 20 files at a time, and they will be provided with links to download their compressed files.
 
